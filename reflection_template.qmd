@@ -23,6 +23,13 @@ execute:
 ```{r}
 #| label: wd-1-csv-1
 
+# Lab 4 Problem 0
+
+childcare_costs <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-05-09/childcare_costs.csv')
+
+counties <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-05-09/counties.csv')
+
+tax_rev <- read_csv('https://atheobold.github.io/groupworthy-data-science/labs/instructions/data/ca_tax_revenue.csv')
 ```
 
 -   `csv` Example 2
@@ -30,12 +37,28 @@ execute:
 ```{r}
 #| label: wd-1-csv-2
 
+# Lab 3 Problem 2
+
+teacher_evals <- read_csv(here::here("Week 3", "Lab 3", "teacher_evals.csv"))
+
 ```
 
 -   `xlsx`
 
 ```{r}
 #| label: wd-1-xlsx
+
+# Practice Activity 4 -- Group Submission #1
+
+library(tidyverse)
+library(readxl)
+military <- read_xlsx("gov_spending_per_capita.xlsx",
+                      sheet = "Share of Govt. spending" ,
+                      skip  = 7,
+                      n_max = 190,
+                      na = c("xxx", ". .", "..")
+                      )
+military
 
 ```
 
@@ -45,6 +68,40 @@ execute:
 
 ```{r}
 #| label: wd-2-ex-1
+
+# Lab 4 Problem 7
+
+ca_childcare %>%
+  select(census_region, study_year, mc_infant, mc_toddler, mc_preschool) %>%
+  pivot_longer(
+    cols = c(mc_infant, mc_toddler, mc_preschool),
+    names_to = "age_group",
+    values_to = "median_price"
+  ) %>%
+  mutate(
+    age_group = factor(age_group,
+                       levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                       labels = c("Infant", "Toddler", "Preschool")),
+    census_region = fct_reorder(census_region, median_price, .fun = median)
+  ) %>%
+  ggplot(aes(x = study_year, y = median_price, color = census_region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE) +
+  facet_wrap(~ age_group, nrow = 1) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = "Weekly Median Price",
+    color = "California Region"
+  ) +
+  scale_x_continuous(breaks = seq(2008, 2018, by = 2)) +
+  theme(
+    legend.position = "right",
+    aspect.ratio = 1,
+    axis.text.x = element_text(size = 7, angle = 0, vjust = 0.5),
+    axis.title.x = element_text(size = 9),
+    plot.title = element_text(size = 10)
+  )
 
 ```
 
@@ -69,6 +126,19 @@ execute:
 ```{r}
 #| label: wd-3-numeric-ex-1
 
+# Lab 4 Problem 5
+
+ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarize(median_income_2018_dollars = median(mhi_2018), .groups = "drop") |>
+  pivot_wider(
+    names_from = study_year,
+    names_glue = "Median_Income_{study_year}_USD",
+    values_from = median_income_2018_dollars
+  ) |>
+arrange(desc(Median_Income_2018_USD))
+
 ```
 
 -   Numeric Example 2
@@ -76,12 +146,32 @@ execute:
 ```{r}
 #| label: wd-3-numeric-ex-1
 
+# Lab 3 Question 5
+
+teacher_evals_clean <- teacher_evals %>%
+  rename(sex = gender) %>%
+  filter(no_participants >= 10) %>%
+  mutate(across(c(teacher_id, course_id), as.character),
+         across(c(question_no, academic_degree, sex), as.factor)
+  ) %>%
+  select(course_id, teacher_id, question_no, no_participants, resp_share,
+         SET_score_avg, percent_failed_cur, academic_degree, seniority, sex)
+teacher_evals_clean
+
 ```
 
 -   Character Example 1 (any context)
 
 ```{r}
 #| label: wd-3-character
+
+# Lab 4 Problem 2
+
+ca_childcare <- counties %>%
+  filter(state_name == "California") %>%
+  inner_join(childcare_costs, by = "county_fips_code")
+
+ca_childcare
 
 ```
 
@@ -106,6 +196,7 @@ execute:
 ```{r}
 #| label: wd-4-numeric-ex-1
 
+
 ```
 
 -   Numeric Example 2
@@ -119,6 +210,40 @@ execute:
 
 ```{r}
 #| label: wd-4-factor-ex-1
+
+# Lab 4 Problem 7
+
+ca_childcare %>%
+  select(census_region, study_year, mc_infant, mc_toddler, mc_preschool) %>%
+  pivot_longer(
+    cols = c(mc_infant, mc_toddler, mc_preschool),
+    names_to = "age_group",
+    values_to = "median_price"
+  ) %>%
+  mutate(
+    age_group = factor(age_group,
+                       levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                       labels = c("Infant", "Toddler", "Preschool")),
+    census_region = fct_reorder(census_region, median_price, .fun = median)
+  ) %>%
+  ggplot(aes(x = study_year, y = median_price, color = census_region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE) +
+  facet_wrap(~ age_group, nrow = 1) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = "Weekly Median Price",
+    color = "California Region"
+  ) +
+  scale_x_continuous(breaks = seq(2008, 2018, by = 2)) +
+  theme(
+    legend.position = "right",
+    aspect.ratio = 1,
+    axis.text.x = element_text(size = 7, angle = 0, vjust = 0.5),
+    axis.title.x = element_text(size = 9),
+    plot.title = element_text(size = 10)
+  )
 
 ```
 
@@ -150,6 +275,14 @@ execute:
 ```{r}
 #| label: wd-5-left-ex-1
 
+# Lab 4 Problem 3
+
+ca_childcare <- ca_childcare %>%
+  left_join(tax_rev, 
+             by = c("county_name" = "entity_name", 
+                    "study_year" = "year"))
+
+ca_childcare
 ```
 
 -   `right_join()` Example 1
@@ -171,6 +304,13 @@ execute:
 ```{r}
 #| label: wd-5-inner-ex-1
 
+# Lab 4 Problem 2
+
+ca_childcare <- counties %>%
+  filter(state_name == "California") %>%
+  inner_join(childcare_costs, by = "county_fips_code")
+
+ca_childcare
 ```
 
 -   `inner_join()` Example 2
@@ -203,12 +343,59 @@ execute:
 ```{r}
 #| label: wd-7-long
 
+# Lab 4 Problem 7
+
+ca_childcare %>%
+  select(census_region, study_year, mc_infant, mc_toddler, mc_preschool) %>%
+  pivot_longer(
+    cols = c(mc_infant, mc_toddler, mc_preschool),
+    names_to = "age_group",
+    values_to = "median_price"
+  ) %>%
+  mutate(
+    age_group = factor(age_group,
+                       levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                       labels = c("Infant", "Toddler", "Preschool")),
+    census_region = fct_reorder(census_region, median_price, .fun = median)
+  ) %>%
+  ggplot(aes(x = study_year, y = median_price, color = census_region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE) +
+  facet_wrap(~ age_group, nrow = 1) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = "Weekly Median Price",
+    color = "California Region"
+  ) +
+  scale_x_continuous(breaks = seq(2008, 2018, by = 2)) +
+  theme(
+    legend.position = "right",
+    aspect.ratio = 1,
+    axis.text.x = element_text(size = 7, angle = 0, vjust = 0.5),
+    axis.title.x = element_text(size = 9),
+    plot.title = element_text(size = 10)
+  )
+
 ```
 
 -   `pivot_wider()`
 
 ```{r}
 #| label: wd-7-wide
+
+# Lab 4 Problem 5
+
+ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarize(median_income_2018_dollars = median(mhi_2018), .groups = "drop") |>
+  pivot_wider(
+    names_from = study_year,
+    names_glue = "Median_Income_{study_year}_USD",
+    values_from = median_income_2018_dollars
+  ) |>
+arrange(desc(Median_Income_2018_USD))
 
 ```
 
@@ -231,12 +418,32 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: r-2-1
 
+# Lab 4 Problem 8
+
+ggplot(ca_childcare, aes(x = mhi_2018, y = mc_infant)) +
+  geom_point(color = "steelblue", alpha = 0.7) +
+  geom_smooth(method = "lm", color = "darkred") +
+  labs(
+    title = "Household Income vs. Infant Childcare Prices in California",
+    x = "Median Household Income (2018 USD)",
+    y = "Weekly Childcare Cost ($)"
+    ) +
+  scale_x_continuous(labels = scales::dollar_format()) +
+  scale_y_continuous(labels = scales::dollar_format())
 ```
 
 -   Example of **dplyr** pipeline
 
 ```{r}
 #| label: r-2-2
+
+# Lab 4 Problem 6
+
+ca_childcare %>%
+  filter(study_year == 2018) %>%
+  group_by(census_region) %>%
+  summarize(median_mc_infant = median(mc_infant), .groups = "drop") %>%
+  slice_min(median_mc_infant, n = 1)
 
 ```
 
@@ -272,12 +479,37 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dvs-1-num
 
+# Lab 4 Problem 8
+
+ggplot(ca_childcare, aes(x = mhi_2018, y = mc_infant)) +
+  geom_point(color = "steelblue", alpha = 0.7) +
+  geom_smooth(method = "lm", color = "darkred") +
+  labs(
+    title = "Household Income vs. Infant Childcare Prices in California",
+    x = "Median Household Income (2018 USD)",
+    y = "Weekly Childcare Cost ($)"
+    ) +
+  scale_x_continuous(labels = scales::dollar_format()) +
+  scale_y_continuous(labels = scales::dollar_format())
+
 ```
 
 -   At least one numeric variable and one categorical variable
 
 ```{r}
 #| label: dvs-2-num-cat
+
+# Lab 2 Problem 8
+
+ggplot(data = surveys, aes(x = species, y = weight)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.2, color = "steelblue", alpha = 0.3) + 
+  labs(
+    x = "Species",
+    y = "Weight (g)",
+    title = "Distribution of Weight by Species"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
@@ -302,12 +534,59 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dvs-2-ex-1
 
+# Lab 4 Problem 7
+
+ca_childcare %>%
+  select(census_region, study_year, mc_infant, mc_toddler, mc_preschool) %>%
+  pivot_longer(
+    cols = c(mc_infant, mc_toddler, mc_preschool),
+    names_to = "age_group",
+    values_to = "median_price"
+  ) %>%
+  mutate(
+    age_group = factor(age_group,
+                       levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                       labels = c("Infant", "Toddler", "Preschool")),
+    census_region = fct_reorder(census_region, median_price, .fun = median)
+  ) %>%
+  ggplot(aes(x = study_year, y = median_price, color = census_region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE) +
+  facet_wrap(~ age_group, nrow = 1) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = "Weekly Median Price",
+    color = "California Region"
+  ) +
+  scale_x_continuous(breaks = seq(2008, 2018, by = 2)) +
+  theme(
+    legend.position = "right",
+    aspect.ratio = 1,
+    axis.text.x = element_text(size = 7, angle = 0, vjust = 0.5),
+    axis.title.x = element_text(size = 9),
+    plot.title = element_text(size = 10)
+  )
+
 ```
 
 -   I can modify my colors to be accessible to anyone's eyes
 
 ```{r}
 #| label: dvs-2-ex-2
+
+# Lab 4 Problem 8
+
+ggplot(ca_childcare, aes(x = mhi_2018, y = mc_infant)) +
+  geom_point(color = "steelblue", alpha = 0.7) +
+  geom_smooth(method = "lm", color = "darkred") +
+  labs(
+    title = "Household Income vs. Infant Childcare Prices in California",
+    x = "Median Household Income (2018 USD)",
+    y = "Weekly Childcare Cost ($)"
+    ) +
+  scale_x_continuous(labels = scales::dollar_format()) +
+  scale_y_continuous(labels = scales::dollar_format())
 
 ```
 
@@ -316,12 +595,59 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dvs-2-ex-3
 
+# Lab 4 Problem 8
+
+ggplot(ca_childcare, aes(x = mhi_2018, y = mc_infant)) +
+  geom_point(color = "steelblue", alpha = 0.7) +
+  geom_smooth(method = "lm", color = "darkred") +
+  labs(
+    title = "Household Income vs. Infant Childcare Prices in California",
+    x = "Median Household Income (2018 USD)",
+    y = "Weekly Childcare Cost ($)"
+    ) +
+  scale_x_continuous(labels = scales::dollar_format()) +
+  scale_y_continuous(labels = scales::dollar_format())
+
 ```
 
 -   I can modify the text in my plot to be more readable
 
 ```{r}
 #| label: dvs-2-ex-4
+
+# Lab 4 Problem 7
+
+ca_childcare %>%
+  select(census_region, study_year, mc_infant, mc_toddler, mc_preschool) %>%
+  pivot_longer(
+    cols = c(mc_infant, mc_toddler, mc_preschool),
+    names_to = "age_group",
+    values_to = "median_price"
+  ) %>%
+  mutate(
+    age_group = factor(age_group,
+                       levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                       labels = c("Infant", "Toddler", "Preschool")),
+    census_region = fct_reorder(census_region, median_price, .fun = median)
+  ) %>%
+  ggplot(aes(x = study_year, y = median_price, color = census_region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE) +
+  facet_wrap(~ age_group, nrow = 1) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = "Weekly Median Price",
+    color = "California Region"
+  ) +
+  scale_x_continuous(breaks = seq(2008, 2018, by = 2)) +
+  theme(
+    legend.position = "right",
+    aspect.ratio = 1,
+    axis.text.x = element_text(size = 7, angle = 0, vjust = 0.5),
+    axis.title.x = element_text(size = 9),
+    plot.title = element_text(size = 10)
+  )
 
 ```
 
@@ -338,6 +664,20 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: dvs-3-1-ex-1
+
+# Challenge 2 Medium: Exploring Colors
+
+library(viridis)
+
+ggplot(data = surveys, aes(x = weight, y = species, fill = sex)) +
+  geom_boxplot(outlier.shape = NA, position = position_dodge(width = 0.8)) +
+  geom_jitter(aes(color = sex), position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.8), alpha = 0.05) +
+  scale_color_viridis_d(option = "plasma", begin = 0.2, end = 0.8) +
+  labs(
+    x = "Weight (g)",
+    y = "Species",
+    title = "Distribution of Weight by Species and Sex (Flipped, Colored by Sex)"
+  )
 
 ```
 
@@ -369,6 +709,19 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dvs-4-summarize
 
+# Lab 4 Problem 5
+
+ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarize(median_income_2018_dollars = median(mhi_2018), .groups = "drop") |>
+  pivot_wider(
+    names_from = study_year,
+    names_glue = "Median_Income_{study_year}_USD",
+    values_from = median_income_2018_dollars
+  ) |>
+arrange(desc(Median_Income_2018_USD))
+
 ```
 
 -   Example using `across()`
@@ -383,7 +736,7 @@ The following assignments satisfy the above criteria:
 -   Example 1
 
 ```{r}
-#| label: dvs-5-1
+#| label: dvs-5-16
 
 ```
 
@@ -391,6 +744,19 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: dvs-5-2
+
+# Lab 3 Problem 10
+
+teacher_evals_clean %>%
+  filter(question_no == 901) %>%
+  group_by(teacher_id) %>%
+  summarize(
+    n_courses = n_distinct(course_id),
+    avg_q1_score = mean(SET_score_avg)
+  ) %>%
+  filter(n_courses >= 5) %>%
+  ungroup() %>%
+  filter(avg_q1_score == max(avg_q1_score) | avg_q1_score == min(avg_q1_score))
 
 ```
 
@@ -400,6 +766,19 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: dvs-6-ex-1
+
+# Lab 4 Problem 5
+
+ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarize(median_income_2018_dollars = median(mhi_2018), .groups = "drop") |>
+  pivot_wider(
+    names_from = study_year,
+    names_glue = "Median_Income_{study_year}_USD",
+    values_from = median_income_2018_dollars
+  ) |>
+arrange(desc(Median_Income_2018_USD))
 
 ```
 
@@ -414,6 +793,19 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: dvs-6-ex-3
+
+# Lab 4 Problem 5
+
+ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarize(median_income_2018_dollars = median(mhi_2018), .groups = "drop") |>
+  pivot_wider(
+    names_from = study_year,
+    names_glue = "Median_Income_{study_year}_USD",
+    values_from = median_income_2018_dollars
+  ) |>
+arrange(desc(Median_Income_2018_USD))
 
 ```
 
@@ -449,12 +841,25 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: pe-1-across
 
+# Lab 3 Problem 5
+
+teacher_evals_clean <- teacher_evals %>%
+  rename(sex = gender) %>%
+  filter(no_participants >= 10) %>%
+  mutate(across(c(teacher_id, course_id), as.character),
+         across(c(question_no, academic_degree, sex), as.factor)
+  ) %>%
+  select(course_id, teacher_id, question_no, no_participants, resp_share,
+         SET_score_avg, percent_failed_cur, academic_degree, seniority, sex)
+teacher_evals_clean
+
 ```
 
 -   using functions from the `map()` family
 
 ```{r}
 #| label: pe-1-map-1
+
 
 ```
 
@@ -488,6 +893,7 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: pe-3-across
 
+
 ```
 
 -   using a `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.)
@@ -511,12 +917,80 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: pe-4-1
 
+# Lab 4 Problem 7
+
+ca_childcare %>%
+  select(census_region, study_year, mc_infant, mc_toddler, mc_preschool) %>%
+  pivot_longer(
+    cols = c(mc_infant, mc_toddler, mc_preschool),
+    names_to = "age_group",
+    values_to = "median_price"
+  ) %>%
+  mutate(
+    age_group = factor(age_group,
+                       levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                       labels = c("Infant", "Toddler", "Preschool")),
+    census_region = fct_reorder(census_region, median_price, .fun = median)
+  ) %>%
+  ggplot(aes(x = study_year, y = median_price, color = census_region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE) +
+  facet_wrap(~ age_group, nrow = 1) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = "Weekly Median Price",
+    color = "California Region"
+  ) +
+  scale_x_continuous(breaks = seq(2008, 2018, by = 2)) +
+  theme(
+    legend.position = "right",
+    aspect.ratio = 1,
+    axis.text.x = element_text(size = 7, angle = 0, vjust = 0.5),
+    axis.title.x = element_text(size = 9),
+    plot.title = element_text(size = 10)
+  )
+
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
 
 ```{r}
 #| label: pe-4-2
+
+# Lab 4 Problem 7
+
+ca_childcare %>%
+  select(census_region, study_year, mc_infant, mc_toddler, mc_preschool) %>%
+  pivot_longer(
+    cols = c(mc_infant, mc_toddler, mc_preschool),
+    names_to = "age_group",
+    values_to = "median_price"
+  ) %>%
+  mutate(
+    age_group = factor(age_group,
+                       levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                       labels = c("Infant", "Toddler", "Preschool")),
+    census_region = fct_reorder(census_region, median_price, .fun = median)
+  ) %>%
+  ggplot(aes(x = study_year, y = median_price, color = census_region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE) +
+  facet_wrap(~ age_group, nrow = 1) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = "Weekly Median Price",
+    color = "California Region"
+  ) +
+  scale_x_continuous(breaks = seq(2008, 2018, by = 2)) +
+  theme(
+    legend.position = "right",
+    aspect.ratio = 1,
+    axis.text.x = element_text(size = 7, angle = 0, vjust = 0.5),
+    axis.title.x = element_text(size = 9),
+    plot.title = element_text(size = 10)
+  )
 
 ```
 
@@ -545,12 +1019,22 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dsm-2-1
 
+# Lab 4 Problem 9
+
+reg_mod1 <- lm(mc_infant ~ mhi_2018, data = ca_childcare)
+summary(reg_mod1)
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-2-2
+
+# Lab 2 Problem 17
+
+species_mod <- aov(weight ~ species, data = surveys)
+summary(species_mod)
 
 ```
 
@@ -559,6 +1043,12 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dsm-2-3
 
+# Lab 1 Problem 10
+
+t.test(len ~ supp,       
+       data = ToothGrowth,
+       var.equal = FALSE,  
+       alternative = "two.sided")
 ```
 
 ## Revising My Thinking
