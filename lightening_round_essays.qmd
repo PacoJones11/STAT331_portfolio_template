@@ -6,16 +6,22 @@ editor: visual
 
 **Answer each of the following questions with *one sentence* including a brief explanation.**
 
-1. Finish the sentence with another student’s name: "If [Name of Student] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
+1.  Finish the sentence with another student’s name: "If \[Name of Student\] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
 
+    Otis Hunt because he has been genuinely very committed to learning the material at a deep level, willing to put in lots of effort to succeed, and consistently helps out others around him.
 
-2. What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+2.  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
 
+    Writing tidy and efficient code was the most challenging part of the course for me because it is hard to write code perfectly, with no mistakes 100% of the time.
 
-3. What was the easiest part of the class for you? Explain why.
+3.  What was the easiest part of the class for you? Explain why.
 
+    Understanding whats going on at a conceptual level was very easy for me because I felt like we never learned anything extremely complicated or abstract.
 
-4. What part of the class surprised or interested you the most? Explain why.
+4.  What part of the class surprised or interested you the most? Explain why.
 
+    I found the topic of using R to sample from different distributions and create confidence intervals to be interesting because it helped reinforce my understanding of those topics.
 
-5. Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+5.  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+
+    Try to use the internet and ChatGPT as little as possible because even though it makes things quicker, you will learn things at a deeper level if you struggle with the problems for a while.
