@@ -513,6 +513,23 @@ ca_childcare
 ```{r}
 #| label: wd-5-left-right-ex-2
 
+# Lab 5 Finding the killer revised
+# Changed from separately filtering from drivers_license, person, and get_fit_now_member, to doing it all in one pipe with joins
+
+person %>%
+  semi_join(
+    drivers_license %>%
+      filter(
+        gender == "male",
+        str_detect(plate_number, "H42W")
+      ),
+    by = c("license_id" = "id")
+  ) %>%
+  left_join(
+    get_fit_now_member,
+    by = c("id" = "person_id")
+  ) %>%
+  filter(!is.na(membership_status))
 ```
 
 -   `inner_join()` Example 1
@@ -560,6 +577,23 @@ witness_interviews
 ```{r}
 #| label: wd-6-semi
 
+# Lab 5 Finding the killer revised
+# Changed from separately filtering from drivers_license, person, and get_fit_now_member, to doing it all in one pipe with joins
+
+person %>%
+  semi_join(
+    drivers_license %>%
+      filter(
+        gender == "male",
+        str_detect(plate_number, "H42W")
+      ),
+    by = c("license_id" = "id")
+  ) %>%
+  left_join(
+    get_fit_now_member,
+    by = c("id" = "person_id")
+  ) %>%
+  filter(!is.na(membership_status))
 ```
 
 -   `anti_join()`
@@ -567,6 +601,28 @@ witness_interviews
 ```{r}
 #| label: wd-6-anti
 
+# Lab 3 Problem 10 Revised
+# Changed from filtering for greater than or equal to 5 courses to using an anti join to filter out less than 5 courses
+
+teacher_evals_clean %>%
+  filter(question_no == 901) %>%
+  group_by(teacher_id) %>%
+  summarize(
+    n_courses = n_distinct(course_id),
+    avg_q1_score = mean(SET_score_avg)
+  ) %>%
+  ungroup() %>%
+  {
+    anti_join(
+      x = .,
+      y = filter(., n_courses < 5),
+      by = "teacher_id"
+    )
+  } %>%
+  filter(
+    avg_q1_score == max(avg_q1_score) |
+    avg_q1_score == min(avg_q1_score)
+  )
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
@@ -1788,17 +1844,21 @@ t.test(len ~ supp,
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 
+Throughout the course, I revised my thinking by picking up tidy principles to make my code more efficient and readable. Before this course I was used to writing sloppy code that nobody else would see, but throughout the quarter I learned about the importance of code readability, and improved my code by removing intermediary object junk, and using white space, named arguments, and indenting. I also learned that the efficiency of my outputs matter, and as the quarter went on, and as I received feedback, I payed more attention to the specific functions I was using. For example, seen in this portfolio, in lab 4 problem 7 I used factor(), but after receiving feedback I realized that using fct_reorder() was a more efficient function for this problem. Moreover, through receiving feedback, I also got better at staying away from superseded functions, which is something displayed in this portfolio from lab 4 problem 8. Although I occasionally repeated mistakes throughout the quarter, I feel as though I improved the tidiness, efficiency, and overall attention to detail in my code tremendously.
+
 <!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
 
 ## Extending My Thinking
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
 
+Throughout the course I continuously payed more and more attention to the small details of my work and always tried to find ways to improve my code and outputs. At the beginning of the course, I was mostly doing the bare minimum, only writing enough code to output what was necessary. But as the quarter went on I learned the importance of how you display information, not just what you display. For example, in the first few weeks I would always use the most simple color scheme, but as seen in this portfolio, in lab 9 problem 8 I put in effort trying to find the exact colors that best fit the table. Even though I continued making mistakes occasionally, by the end of the quarter I always made a conscious effort to make all outputs visually appealing for the viewer, and payed attention to all minor details.
+
 ## Peer Support & Collaboration
 
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
 
-Your code is overall very clear and thoughtfully structured, and I like how consistently you use pipes to make each step easy to follow. Your pipelines are especially tidy and the use of line breaks and indentation makes the logic visually clean and readable. One way you could improvement is by adding consistent whitespace around arithmetic operators ( x \* slope instead of x\*slope), which would make your code even more tidy. I also noticed a couple instances where you repeat the same data-wrangling steps (such as computing the results summary twice), and consolidating these into a single object would make your code more efficient. But overall your code is very tidy and efficient!
+Your code is overall very clear and thoughtfully structured, and I like how consistently you use pipes to make each step easy to follow. Your pipelines are especially tidy and the use of line breaks and indentation makes the logic visually clean and readable. One way you could improvement is by adding consistent white space around arithmetic operators ( x \* slope instead of x\*slope), which would make your code even more tidy. I also noticed a couple instances where you repeat the same data-wrangling steps (such as computing the results summary twice), and consolidating these into a single object would make your code more efficient. But overall your code is very tidy and efficient!
 
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
 
